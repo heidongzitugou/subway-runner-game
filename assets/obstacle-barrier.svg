@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <defs>
+    <linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7833d"/>
+      <stop offset="100%" stop-color="#d4531e"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <pattern id="stripe" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="4" height="8" fill="transparent"/>
+      <rect x="4" width="4" height="8" fill="#fff" opacity="0.15"/>
+    </pattern>
+  </defs>
+  <!-- Barrier body -->
+  <rect x="4" y="8" width="72" height="64" rx="6" fill="url(#barGrad)" stroke="#ffb07a" stroke-width="2"/>
+  <!-- Warning stripes pattern overlay -->
+  <rect x="4" y="8" width="72" height="64" rx="6" fill="url(#stripe)"/>
+  <!-- Top bolt -->
+  <rect x="32" y="0" width="16" height="10" rx="2" fill="#d4531e" stroke="#f7833d" stroke-width="1"/>
+  <!-- Cross marking -->
+  <line x1="22" y1="24" x2="58" y2="56" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.25"/>
+  <line x1="58" y1="24" x2="22" y2="56" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="0.25"/>
+  <!-- Inner border glow -->
+  <rect x="10" y="16" width="60" height="48" rx="4" fill="none" stroke="#ffd34e" stroke-width="1.5" opacity="0.3" filter="url(#glow)"/>
+</svg>

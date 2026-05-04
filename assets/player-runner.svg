@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 160" width="120" height="160">
+  <defs>
+    <linearGradient id="suitGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5be6b7"/>
+      <stop offset="100%" stop-color="#0f9b7a"/>
+    </linearGradient>
+    <linearGradient id="visorGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd34e"/>
+      <stop offset="100%" stop-color="#ff9f1c"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Shadow -->
+  <ellipse cx="60" cy="148" rx="35" ry="8" fill="rgba(0,0,0,0.4)"/>
+  <!-- Running legs -->
+  <g transform="translate(60,118)">
+    <!-- Back leg (right) -->
+    <path d="M-4,0 L-18,18 L-24,30" stroke="#2a8a72" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Front leg (left, forward) -->
+    <path d="M4,0 L20,14 L30,28 L40,30" stroke="#42c9a0" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Shoe front -->
+    <ellipse cx="42" cy="30" rx="6" ry="3" fill="#5be6b7"/>
+  </g>
+  <!-- Body (torso) -->
+  <path d="M42,74 Q40,94 44,112 Q54,120 60,120 Q66,120 76,112 Q80,94 78,74 Z" fill="url(#suitGrad)"/>
+  <!-- Left arm (back, swinging back) -->
+  <path d="M42,78 L26,88 L14,100" stroke="#2a8a72" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Right arm (front, swinging forward) -->
+  <path d="M78,78 L92,84 L104,74 L108,68" stroke="#42c9a0" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Glow trail on arm -->
+  <path d="M100,72 L112,62" stroke="#5be6b7" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5" filter="url(#glow)"/>
+  <!-- Head -->
+  <circle cx="60" cy="56" r="22" fill="#1a2c33"/>
+  <!-- Visor/goggles -->
+  <path d="M42,54 Q48,46 60,46 Q72,46 78,54" stroke="url(#visorGrad)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+  <ellipse cx="60" cy="56" rx="16" ry="6" fill="url(#visorGrad)" opacity="0.3"/>
+  <!-- Speed lines behind -->
+  <g opacity="0.5">
+    <line x1="10" y1="70" x2="2" y2="70" stroke="#5be6b7" stroke-width="2" stroke-linecap="round"/>
+    <line x1="14" y1="85" x2="4" y2="85" stroke="#5be6b7" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="8" y1="100" x2="0" y2="100" stroke="#5be6b7" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="12" y1="60" x2="6" y2="60" stroke="#ffd34e" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  <!-- Shoe glow -->
+  <circle cx="42" cy="30" r="10" fill="#5be6b7" opacity="0.15" filter="url(#glow)"/>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 70" width="60" height="70">
+  <defs>
+    <linearGradient id="coneGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff8b2e"/>
+      <stop offset="100%" stop-color="#e66910"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Cone body -->
+  <path d="M30,2 L8,66 L52,66 Z" fill="url(#coneGrad)" stroke="#ffb07a" stroke-width="2"/>
+  <!-- White reflective stripes -->
+  <g opacity="0.85">
+    <rect x="18" y="24" width="24" height="6" rx="2" fill="#fff2c7" transform="rotate(0)"/>
+    <rect x="14" y="38" width="32" height="6" rx="2" fill="#fff2c7"/>
+    <rect x="10" y="52" width="40" height="6" rx="2" fill="#fff2c7"/>
+  </g>
+  <!-- Cone tip glow -->
+  <circle cx="30" cy="6" r="4" fill="#ffd34e" opacity="0.3" filter="url(#glow)"/>
+  <!-- Base -->
+  <rect x="4" y="62" width="52" height="8" rx="3" fill="#d4531e" stroke="#ffb07a" stroke-width="1.5"/>
+  <!-- Shadow at base -->
+  <ellipse cx="30" cy="68" rx="30" ry="4" fill="rgba(0,0,0,0.3)"/>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" width="60" height="60">
+  <defs>
+    <radialGradient id="coinGlow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#fff5b9"/>
+      <stop offset="40%" stop-color="#ffd34e"/>
+      <stop offset="100%" stop-color="#e6a817"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Outer glow -->
+  <circle cx="30" cy="30" r="28" fill="#ffd34e" opacity="0.12" filter="url(#glow)"/>
+  <circle cx="30" cy="30" r="24" fill="#ffd34e" opacity="0.08" filter="url(#glow)"/>
+  <!-- Main coin body -->
+  <circle cx="30" cy="30" r="20" fill="url(#coinGlow)" stroke="#fff5b9" stroke-width="2"/>
+  <!-- Inner ring -->
+  <circle cx="30" cy="30" r="14" fill="none" stroke="#fff5b9" stroke-width="1" opacity="0.5"/>
+  <!-- Dollar/C symbol -->
+  <text x="30" y="34" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#8a6310" text-anchor="middle" dominant-baseline="middle">$</text>
+  <!-- Shine highlight -->
+  <ellipse cx="24" cy="23" rx="6" ry="4" fill="#fff" opacity="0.35" transform="rotate(-30,24,23)"/>
+</svg>

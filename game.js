@@ -71,15 +71,15 @@ const colors = {
 };
 
 const artCatalog = {
-  background: { src: "assets/background-night.png" },
-  player: { src: "assets/player-runner.png" },
-  coin: { src: "assets/coin-glow.png" },
-  shield: { src: "assets/power-shield.png" },
-  magnet: { src: "assets/power-magnet.png" },
-  barrier: { src: "assets/obstacle-barrier.png" },
-  gate: { src: "assets/obstacle-gate.png" },
-  cone: { src: "assets/obstacle-cone.png" },
-  train: { src: "assets/train-front.png" },
+  background: { src: "assets/background-night.svg" },
+  player: { src: "assets/player-runner.svg" },
+  coin: { src: "assets/coin-glow.svg" },
+  shield: { src: "assets/power-shield.svg" },
+  magnet: { src: "assets/power-magnet.svg" },
+  barrier: { src: "assets/obstacle-barrier.svg" },
+  gate: { src: "assets/obstacle-gate.svg" },
+  cone: { src: "assets/obstacle-cone.svg" },
+  train: { src: "assets/train-front.svg" },
 };
 
 const artAssets = loadArtAssets(artCatalog);
@@ -191,35 +191,6 @@ function resetGame() {
   requestAnimationFrame(loop);
 }
 
-function updateHud() {
-  const score = Math.floor(state.score);
-  scoreEl.textContent = String(score);
-  coinsEl.textContent = String(state.coins);
-  speedEl.textContent = `${state.speed.toFixed(1)}x`;
-  bestEl.textContent = String(Math.max(state.best, score));
-
-  shieldPill.textContent = `护盾 ${Math.ceil(player.shield)}s`;
-  magnetPill.textContent = `磁铁 ${Math.ceil(player.magnet)}s`;
-  comboPill.textContent = `连击 x${state.combo}`;
-  shieldPill.classList.toggle("active", player.shield > 0);
-  magnetPill.classList.toggle("active", player.magnet > 0);
-  comboPill.classList.toggle("active", state.combo > 1);
-
-  if (state.missionComplete) {
-    missionEl.textContent = "奖励已触发：速度提升更快，金币连击分数翻倍。";
-  } else {
-    missionEl.textContent = `收集 20 枚金币，解锁速度奖励：${Math.min(20, state.coins)}/20`;
-  }
-}
-
-function addToast(text) {
-  state.messages.push({
-    text,
-    life: 1.55,
-    y: view().height * 0.28,
-  });
-}
-
 function spawnObstacleGroup() {
   const roll = Math.random();
   const baseLane = randomLane();
@@ -324,18 +295,6 @@ function moveLane(direction) {
   puff(player.x - direction * 20, player.y - 36, colors.green, 4);
 }
 
-function togglePause() {
-  if (!state.running || state.over) return;
-  state.paused = !state.paused;
-  if (state.paused) {
-    showMessage("已暂停", "按 P 或点击按钮继续奔跑。", "继续");
-  } else {
-    overlay.classList.add("hidden");
-    state.lastTime = performance.now();
-    requestAnimationFrame(loop);
-  }
-}
-
 function handleInput(event) {
   const key = event.key.toLowerCase();
   if (["arrowleft", "arrowright", "arrowup", "arrowdown", " "].includes(event.key)) {
@@ -380,13 +339,6 @@ function handleTouchEnd(event) {
   }
 }
 
-function showMessage(title, copy, button) {
-  overlayTitle.textContent = title;
-  overlayCopy.textContent = copy;
-  startBtn.textContent = button;
-  overlay.classList.remove("hidden");
-}
-
 function togglePause() {
   if (!state.running || state.over) return;
   state.paused = !state.paused;
@@ -397,15 +349,6 @@ function togglePause() {
     state.lastTime = performance.now();
     requestAnimationFrame(loop);
   }
-}
-
-function endGame() {
-  const score = Math.floor(state.score);
-  state.running = false;
-  state.over = true;
-  saveBestScore(score);
-  updateHud();
-  showMessage("撞上障碍", `最终分数 ${score}，金币 ${state.coins}，最高分 ${state.best}。`, "再跑一局");
 }
 
 function update(dt) {
@@ -432,7 +375,6 @@ function update(dt) {
     state.speedBurst = 1;
     addToast("任务完成 +400", colors.gold);
     addRing(player.x, player.y - 44, colors.gold, 0.9);
-    addToast("任务完成 +400");
   }
 
   if (state.spawnTimer <= 0) {
