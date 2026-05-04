@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import { GROUND_Y } from '../utils/constants.js';
+import { sfx } from '../managers/SoundFX.js';
 
 export class Player {
   constructor(scene) {
@@ -60,12 +61,14 @@ export class Player {
 
   doJump() {
     if (this.alive && this.jump <= 1 && this.sliding <= 0) {
+      sfx.jump();
       this.jumpVelocity = 820;
     }
   }
 
   doSlide() {
     if (this.alive && this.jump <= 4) {
+      sfx.slide();
       this.sliding = 0.68;
     }
   }

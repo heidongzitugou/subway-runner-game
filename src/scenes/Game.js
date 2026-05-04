@@ -3,6 +3,7 @@ import { CONFIG, LANES, COLORS, PALETTE, SPEED, GROUND_Y, BEST_KEY } from '../ut
 import { Player } from '../objects/Player.js';
 import { Spawner } from '../managers/Spawner.js';
 import { HUD } from '../managers/HUD.js';
+import { sfx } from '../managers/SoundFX.js';
 
 const B = PALETTE; // shorthand
 
@@ -85,6 +86,9 @@ export class GameScene extends Phaser.Scene {
 
     // Reset keyboard to prevent carry-over from Menu
     this.input.keyboard.resetKeys();
+
+    // Start background music
+    sfx.startMusic();
 
     this.cameras.main.fadeIn(300, 7, 16, 20);
   }
@@ -196,6 +200,7 @@ export class GameScene extends Phaser.Scene {
     const speedInt = Math.floor(this.speed);
     if (speedInt > this.lastSpeedMilestone && speedInt >= 2) {
       this.lastSpeedMilestone = speedInt;
+      sfx.milestone();
       this.addToast(`🚀 速度 ${speedInt}.0x！`);
       this.flash = 1;
     }
@@ -347,26 +352,63 @@ export class GameScene extends Phaser.Scene {
       w * 0.45, railBottom
     );
 
-    // Rails
+    // Rails (thick & bright)
     for (const lane of LANES) {
       const l = center + lane * w * 0.044;
-      // Left rail
-      this.trackGfx.lineStyle(4, B.RAIL, 0.6);
+      // Rail shadow
+      this.trackGfx.lineStyle(8, 0x000000, 0.2);
+      this.trackGfx.beginPath();
+      this.trackGfx.moveTo(l - w * 0.017 + 2, railTop + 2);
+      this.trackGfx.lineTo(l - w * 0.050 + 2, railBottom + 2);
+      this.trackGfx.strokePath();
+      this.trackGfx.beginPath();
+      this.trackGfx.moveTo(l + w * 0.017 + 2, railTop + 2);
+      this.trackGfx.lineTo(l + w * 0.050 + 2, railBottom + 2);
+      this.trackGfx.strokePath();
+      // Rail main
+      this.trackGfx.lineStyle(7, 0x95a5a6);
       this.trackGfx.beginPath();
       this.trackGfx.moveTo(l - w * 0.017, railTop);
       this.trackGfx.lineTo(l - w * 0.050, railBottom);
       this.trackGfx.strokePath();
-      // Right rail
       this.trackGfx.beginPath();
       this.trackGfx.moveTo(l + w * 0.017, railTop);
       this.trackGfx.lineTo(l + w * 0.050, railBottom);
       this.trackGfx.strokePath();
+      // Rail highlight (top edge)
+      this.trackGfx.lineStyle(2, 0xd5dbdb, 0.5);
+      this.trackGfx.beginPath();
+      this.trackGfx.moveTo(l - w * 0.017 - 1, railTop - 1);
+      this.trackGfx.lineTo(l - w * 0.050 - 1, railBottom - 1);
+      this.trackGfx.strokePath();
+      this.trackGfx.beginPath();
+      this.trackGfx.moveTo(l + w * 0.017 + 1, railTop - 1);
+      this.trackGfx.lineTo(l + w * 0.050 + 1, railBottom - 1);
+      this.trackGfx.strokePath();
+    }
+
+    // Lane markers (dashed center lines)
+    this.trackGfx.lineStyle(3, 0xffffff, 0.18);
+    for (let i = 0; i < 30; i++) {
+      const t = ((this.distance / 100 + i) % 30) / 30;
+      const yy = railTop + t * (railBottom - railTop);
+      const spread = w * (0.13 + t * 0.68);
+      // Between lane -1 and 0
+      this.trackGfx.beginPath();
+      this.trackGfx.moveTo(center - spread * 0.42, yy);
+      this.trackGfx.lineTo(center - spread * 0.38, yy + 8);
+      this.trackGfx.strokePath();
+      // Between lane 0 and 1
+      this.trackGfx.beginPath();
+      this.trackGfx.moveTo(center + spread * 0.38, yy);
+      this.trackGfx.lineTo(center + spread * 0.42, yy + 8);
+      this.trackGfx.strokePath();
     }
 
     // Sleepers (cross ties)
-    this.trackGfx.lineStyle(5, B.SLEEPER, 0.3);
-    for (let i = 0; i < 20; i++) {
-      const t = ((this.distance / 180 + i) % 20) / 20;
+    this.trackGfx.lineStyle(6, B.SLEEPER, 0.35);
+    for (let i = 0; i < 24; i++) {
+      const t = ((this.distance / 160 + i) % 24) / 24;
       const yy = railTop + t * (railBottom - railTop);
       const spread = w * (0.12 + t * 0.65);
       this.trackGfx.beginPath();
@@ -573,12 +615,14 @@ export class GameScene extends Phaser.Scene {
       this.comboTimer = 2.4;
       this.score += 25 * this.combo;
       this.speedBurst = Math.max(this.speedBurst, 0.22);
+      sfx.coin();
       this.burstEffect(obj);
       const pos = this.objectScreen(obj);
       this.addFloatingScore(pos.x, pos.y - pos.h, 25 * this.combo);
       return;
     }
     if (obj.kind === 'shield') {
+      sfx.powerup();
       obj.hit = true;
       this.player.shield = 8;
       this.score += 150;
@@ -587,6 +631,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     if (obj.kind === 'magnet') {
+      sfx.powerup();
       obj.hit = true;
       this.player.magnet = 8;
       this.score += 150;
@@ -596,6 +641,7 @@ export class GameScene extends Phaser.Scene {
     }
     // Obstacle + shield
     if (this.player.shield > 0) {
+      sfx.hit();
       obj.hit = true;
       this.player.shield = Math.max(0, this.player.shield - 3.4);
       this.score += 120;
@@ -605,6 +651,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     // Game over
+    sfx.gameOver();
     this.shake = 1.2;
     this.endGame();
   }
@@ -695,6 +742,7 @@ export class GameScene extends Phaser.Scene {
       localStorage.setItem(BEST_KEY, String(score));
     }
 
+    sfx.stopMusic();
     this.cameras.main.shake(200, 0.012);
     this.slowMo = 0.2;
 
