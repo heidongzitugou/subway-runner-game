@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import { CONFIG, COLORS } from '../utils/constants.js';
+import { CONFIG } from '../utils/constants.js';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -7,207 +7,205 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
-    const w = CONFIG.WIDTH;
-    const h = CONFIG.HEIGHT;
+    const w = CONFIG.WIDTH, h = CONFIG.HEIGHT;
 
-    // ── Loading screen ──
-    this.add.rectangle(w / 2, h / 2, w, h, 0x071014);
-
-    const loadText = this.add.text(w / 2, h / 2 - 40, '生成素材中…', {
-      fontSize: '18px',
-      color: '#b8c5bd',
-      fontFamily: 'Microsoft YaHei, sans-serif',
+    this.add.rectangle(w / 2, h / 2, w, h, 0x4ecdc4);
+    const loadText = this.add.text(w / 2, h / 2 - 40, '加载中…', {
+      fontSize: '20px', color: '#fff', fontFamily: 'Arial, sans-serif',
+      fontStyle: '900',
     }).setOrigin(0.5);
 
-    const barBg = this.add.rectangle(w / 2, h / 2, 324, 28, 0x1a2c31);
-    const bar = this.add.rectangle(w / 2 - 160, h / 2, 0, 22, 0x5be6b7).setOrigin(0, 0.5);
+    const barBg = this.add.rectangle(w / 2, h / 2, 324, 28, 0xffffff, 0.3);
+    const bar = this.add.rectangle(w / 2 - 160, h / 2, 0, 22, 0xffd34e).setOrigin(0, 0.5);
 
-    // Generate textures programmatically (delayed to show loading bar)
     const tasks = [
-      () => this.genBackground(),
-      () => this.genPlayer(),
-      () => this.genCoin(),
-      () => this.genShield(),
-      () => this.genMagnet(),
-      () => this.genBarrier(),
-      () => this.genGate(),
-      () => this.genCone(),
-      () => this.genTrain(),
+      () => this.gen('background', 960, 640, this.drawBg),
+      () => this.gen('player', 80, 120, this.drawPlayer),
+      () => this.gen('coin', 40, 40, this.drawCoin),
+      () => this.gen('shield', 48, 48, this.drawShield),
+      () => this.gen('magnet', 52, 52, this.drawMagnet),
+      () => this.gen('barrier', 60, 80, this.drawBarrier),
+      () => this.gen('gate', 70, 55, this.drawGate),
+      () => this.gen('cone', 44, 60, this.drawCone),
+      () => this.gen('train', 120, 140, this.drawTrain),
     ];
 
-    const barW = 320;
     let i = 0;
     const next = () => {
       if (i >= tasks.length) {
-        loadText.destroy();
-        barBg.destroy();
-        bar.destroy();
+        loadText.destroy(); barBg.destroy(); bar.destroy();
         this.scene.start('Menu');
         return;
       }
       tasks[i]();
       i++;
-      bar.width = (i / tasks.length) * barW;
-      this.time.delayedCall(40, next);
+      bar.width = (i / tasks.length) * 320;
+      this.time.delayedCall(30, next);
     };
     next();
   }
 
-  // ── Texture generators ──
-
-  genBackground() {
+  gen(key, w, h, drawFn) {
     const g = this.add.graphics();
-    const w = 960, h = 640;
-    // Sky
-    g.fillGradientStyle(0x23313b, 0x23313b, 0x121b21, 0x121b21);
-    g.fillRect(0, 0, w, h * 0.45);
-    g.fillStyle(0x071014, 0.55);
-    g.fillRect(0, h * 0.25, w, h * 0.55);
-    // City silhouette
-    g.fillStyle(0x18242c);
-    for (let i = 0; i < 14; i++) {
-      const bw = w * (0.035 + (i % 4) * 0.012);
-      const bh = h * (0.11 + ((i * 29) % 80) / 360);
-      g.fillRect(i * 68, h * 0.29 - bh, bw, bh);
-    }
-    g.generateTexture('background', w, h);
+    drawFn.call(this, g, w, h);
+    g.generateTexture(key, w, h);
     g.destroy();
   }
 
-  genPlayer() {
-    const g = this.add.graphics();
-    const w = 80, h = 120;
-    // Body
-    g.fillStyle(0x5be6b7);
-    g.fillRoundedRect(20, 40, 40, 50, 6);
-    // Head
-    g.fillStyle(0x1a2c33);
-    g.fillCircle(40, 28, 18);
-    // Visor
-    g.fillStyle(0xffd34e);
-    g.fillRect(24, 24, 32, 6);
+  // ── Background texture ──
+  drawBg(g) {
+    // Sky gradient
+    g.fillGradientStyle(0x4ecdc4, 0x4ecdc4, 0x87ceeb, 0x87ceeb);
+    g.fillRect(0, 0, 960, 350);
+    g.fillGradientStyle(0x87ceeb, 0x87ceeb, 0xfff8dc, 0xfff8dc);
+    g.fillRect(0, 350, 960, 100);
+    // Sun
+    g.fillStyle(0xffeb3b, 0.4);
+    g.fillCircle(820, 80, 50);
+    g.fillStyle(0xffeb3b);
+    g.fillCircle(820, 80, 30);
+    // Clouds
+    g.fillStyle(0xffffff, 0.7);
+    g.fillEllipse(200, 100, 120, 40);
+    g.fillEllipse(260, 90, 80, 35);
+    g.fillEllipse(500, 130, 100, 35);
+    g.fillEllipse(560, 125, 70, 30);
+  }
+
+  // ── Player ──
+  drawPlayer(g, w, h) {
+    // Body (bright blue hoodie)
+    g.fillStyle(0x45b7d1);
+    g.fillRoundedRect(18, 35, 44, 50, 8);
+    // Head (slightly bigger = Q版)
+    g.fillStyle(0xffdbac);
+    g.fillCircle(40, 22, 20);
+    // Hair
+    g.fillStyle(0x2d3436);
+    g.fillRoundedRect(22, 4, 36, 14, 6);
+    // Eyes
+    g.fillStyle(0x2d3436);
+    g.fillCircle(33, 20, 3);
+    g.fillCircle(47, 20, 3);
+    // Smile
+    g.lineStyle(2, 0x2d3436);
+    g.beginPath(); g.arc(40, 26, 6, 0.2, Math.PI - 0.2); g.strokePath();
     // Legs
-    g.fillStyle(0x42c9a0);
-    g.fillRect(24, 88, 12, 24);
-    g.fillRect(44, 88, 12, 24);
-    // Arms
-    g.fillStyle(0x42c9a0);
-    g.fillRect(12, 50, 10, 30);
-    g.fillRect(58, 50, 10, 30);
-    g.generateTexture('player', w, h);
-    g.destroy();
+    g.fillStyle(0x2d3436);
+    g.fillRect(24, 82, 12, 26);
+    g.fillRect(44, 84, 12, 24);
+    // Shoes
+    g.fillStyle(0xff6b6b);
+    g.fillRoundedRect(22, 104, 16, 10, 4);
+    g.fillRoundedRect(42, 104, 16, 10, 4);
+    // Backpack
+    g.fillStyle(0xff6b6b);
+    g.fillRoundedRect(10, 42, 12, 30, 4);
   }
 
-  genCoin() {
-    const g = this.add.graphics();
-    const s = 40;
+  // ── Coin ──
+  drawCoin(g) {
     g.fillStyle(0xffd34e);
-    g.fillCircle(s / 2, s / 2, s / 2 - 2);
-    g.lineStyle(2, 0xfff5b9);
-    g.strokeCircle(s / 2, s / 2, s / 2 - 2);
-    g.fillStyle(0x8a6310);
-    g.fillRect(s / 2 - 4, s / 2 + 6, 8, 2);
-    g.generateTexture('coin', s, s);
-    g.destroy();
+    g.fillCircle(20, 20, 17);
+    g.fillStyle(0xffeb3b);
+    g.fillCircle(20, 20, 12);
+    g.lineStyle(2, 0xf39c12);
+    g.strokeCircle(20, 20, 17);
+    // Dollar sign
+    g.fillStyle(0xf39c12);
+    g.fillRect(18, 12, 4, 16);
+    g.fillRect(14, 14, 12, 3);
+    g.fillRect(14, 23, 12, 3);
   }
 
-  genShield() {
-    const g = this.add.graphics();
-    const s = 48;
-    g.fillStyle(0x68a7ff);
+  // ── Shield ──
+  drawShield(g) {
+    g.fillStyle(0x45b7d1);
     g.beginPath();
-    g.moveTo(s / 2, 4);
-    g.lineTo(44, 14);
-    g.lineTo(44, 30);
-    g.lineTo(s / 2, 48);
-    g.lineTo(4, 30);
-    g.lineTo(4, 14);
-    g.closePath();
-    g.fillPath();
-    g.fillStyle(0xffffff, 0.3);
-    g.fillRect(s / 2 - 6, 16, 12, 12);
-    g.generateTexture('shield', s, s);
-    g.destroy();
+    g.moveTo(24, 2); g.lineTo(44, 10);
+    g.lineTo(44, 26); g.lineTo(24, 44);
+    g.lineTo(4, 26); g.lineTo(4, 10);
+    g.closePath(); g.fillPath();
+    g.fillStyle(0x74d4e8);
+    g.fillRect(18, 14, 12, 14);
   }
 
-  genMagnet() {
-    const g = this.add.graphics();
-    const s = 48;
-    g.fillStyle(0x5be6b7);
-    g.fillRoundedRect(14, 4, 20, 14, 4);
-    g.fillStyle(0xff3b6f);
-    g.fillRoundedRect(4, 18, 10, 26, 4);
-    g.fillRoundedRect(34, 18, 10, 26, 4);
-    g.generateTexture('magnet', s, s);
-    g.destroy();
+  // ── Magnet ──
+  drawMagnet(g) {
+    g.fillStyle(0xff6b6b);
+    g.fillRoundedRect(16, 6, 20, 14, 4);
+    g.fillRoundedRect(6, 18, 12, 28, 4);
+    g.fillRoundedRect(34, 18, 12, 28, 4);
+    g.fillStyle(0xff4757);
+    g.fillRoundedRect(8, 20, 8, 24, 3);
+    g.fillRoundedRect(36, 20, 8, 24, 3);
   }
 
-  genBarrier() {
-    const g = this.add.graphics();
-    const s = 70;
-    g.fillStyle(0xf7833d);
-    g.fillRoundedRect(4, 8, s - 8, s - 12, 6);
-    g.lineStyle(3, 0xffb07a);
-    g.strokeRoundedRect(4, 8, s - 8, s - 12, 6);
-    // Warning X
-    g.lineStyle(3, 0xffffff, 0.3);
-    g.beginPath();
-    g.moveTo(22, 24); g.lineTo(48, 56);
-    g.moveTo(48, 24); g.lineTo(22, 56);
-    g.strokePath();
-    g.generateTexture('barrier', s, s);
-    g.destroy();
+  // ── Barrier ──
+  drawBarrier(g, w, h) {
+    g.fillStyle(0xff6b6b);
+    g.fillRoundedRect(4, 6, w - 8, h - 10, 6);
+    g.lineStyle(3, 0xff4757);
+    g.strokeRoundedRect(4, 6, w - 8, h - 10, 6);
+    // Stripes
+    g.lineStyle(4, 0xffffff, 0.25);
+    for (let i = 0; i < 5; i++) {
+      const yy = 14 + i * 14;
+      g.beginPath(); g.moveTo(10, yy); g.lineTo(w - 10, yy + 8); g.strokePath();
+    }
   }
 
-  genGate() {
-    const g = this.add.graphics();
-    const w = 70, h = 60;
-    g.fillStyle(0xef4c4f);
-    g.fillRect(2, 2, w - 4, 12);
+  // ── Gate ──
+  drawGate(g, w, h) {
+    g.fillStyle(0xfeca57);
+    g.fillRect(2, 2, w - 4, 10);
     g.fillRect(2, 2, 10, h - 4);
     g.fillRect(w - 12, 2, 10, h - 4);
-    g.generateTexture('gate', w, h);
-    g.destroy();
+    // Warning stripes
+    g.fillStyle(0xff6b6b);
+    g.fillRect(14, 4, w - 28, 6);
   }
 
-  genCone() {
-    const g = this.add.graphics();
-    const s = 50;
-    g.fillStyle(0xff8b2e);
+  // ── Cone ──
+  drawCone(g) {
+    g.fillStyle(0xfeca57);
     g.beginPath();
-    g.moveTo(s / 2, 4);
-    g.lineTo(s - 4, s - 8);
-    g.lineTo(4, s - 8);
-    g.closePath();
-    g.fillPath();
-    g.fillStyle(0xfff2c7);
-    g.fillRect(12, 20, 26, 5);
-    g.fillRect(8, 32, 34, 5);
-    g.fillRect(4, 44, 42, 5);
-    g.generateTexture('cone', s, s);
-    g.destroy();
+    g.moveTo(22, 2); g.lineTo(42, 54); g.lineTo(2, 54);
+    g.closePath(); g.fillPath();
+    g.lineStyle(3, 0xff6b6b, 0.5);
+    g.beginPath(); g.moveTo(22, 2); g.lineTo(42, 54); g.strokePath();
+    g.beginPath(); g.moveTo(22, 2); g.lineTo(2, 54); g.strokePath();
+    // Stripes
+    g.fillStyle(0xffffff, 0.6);
+    g.fillRect(12, 18, 20, 5);
+    g.fillRect(8, 30, 28, 5);
+    g.fillRect(4, 42, 36, 5);
   }
 
-  genTrain() {
-    const g = this.add.graphics();
-    const w = 100, h = 140;
+  // ── Train ──
+  drawTrain(g, w, h) {
     // Body
-    g.fillStyle(0x8eb0a6);
-    g.fillRoundedRect(4, 20, w - 8, h - 24, 6);
+    g.fillStyle(0x4ecdc4);
+    g.fillRoundedRect(4, 18, w - 8, h - 22, 8);
     // Roof
-    g.fillStyle(0x1f3333);
-    g.fillRect(4, 20, w - 8, 16);
-    // Windshield
-    g.fillStyle(0x162027);
-    g.fillRect(24, 38, w - 48, 28);
-    // Red stripe
-    g.fillStyle(0xef4c4f);
-    g.fillRect(4, 88, w - 8, 6);
+    g.fillStyle(0x45b7d1);
+    g.fillRect(4, 18, w - 8, 14);
+    // Windows
+    g.fillStyle(0x87ceeb);
+    g.fillRoundedRect(20, 36, w - 40, 24, 4);
+    // Window shine
+    g.fillStyle(0xffffff, 0.2);
+    g.fillRect(24, 40, 30, 16);
+    // Stripe
+    g.fillStyle(0xff6b6b);
+    g.fillRect(4, 80, w - 8, 6);
     // Headlights
-    g.fillStyle(0xffd34e);
-    g.fillRect(6, 44, 14, 8);
-    g.fillRect(w - 20, 44, 14, 8);
-    g.generateTexture('train', w, h);
-    g.destroy();
+    g.fillStyle(0xffeb3b);
+    g.fillCircle(20, 42, 8);
+    g.fillCircle(w - 20, 42, 8);
+    // Wheels
+    g.fillStyle(0x2d3436);
+    g.fillCircle(20, h - 10, 8);
+    g.fillCircle(w - 20, h - 10, 8);
   }
 }

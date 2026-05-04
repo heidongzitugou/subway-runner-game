@@ -1,8 +1,10 @@
 import * as Phaser from 'phaser';
-import { CONFIG, LANES, COLORS, SPEED, GROUND_Y, BEST_KEY } from '../utils/constants.js';
+import { CONFIG, LANES, COLORS, PALETTE, SPEED, GROUND_Y, BEST_KEY } from '../utils/constants.js';
 import { Player } from '../objects/Player.js';
 import { Spawner } from '../managers/Spawner.js';
 import { HUD } from '../managers/HUD.js';
+
+const B = PALETTE; // shorthand
 
 export class GameScene extends Phaser.Scene {
   constructor() {
@@ -227,60 +229,120 @@ export class GameScene extends Phaser.Scene {
     const w = CONFIG.WIDTH;
     const h = CONFIG.HEIGHT;
 
-    // --- Background ---
+    // ── Day sky ──
     this.bgGfx.clear();
-    this.bgGfx.fillGradientStyle(0x23313b, 0x23313b, 0x121b21, 0x121b21);
-    this.bgGfx.fillRect(0, 0, w, h * 0.45);
-    // Tunnel
-    this.bgGfx.fillStyle(0x071014, 0.55);
-    this.bgGfx.fillRect(0, h * 0.25, w, h * 0.55);
-    // City
-    this.bgGfx.fillStyle(0x18242c);
-    for (let i = 0; i < 14; i++) {
-      const bw = w * (0.035 + (i % 4) * 0.012);
-      const bh = h * (0.11 + ((i * 29) % 80) / 360);
-      const x = ((i * 97 + this.distance * 0.02) % (w + bw)) - bw;
-      this.bgGfx.fillRect(x, h * 0.29 - bh, bw, bh);
+    this.bgGfx.fillGradientStyle(B.SKY_TOP, B.SKY_TOP, B.SKY_MID, B.SKY_MID);
+    this.bgGfx.fillRect(0, 0, w, h * 0.55);
+    this.bgGfx.fillGradientStyle(B.SKY_MID, B.SKY_MID, B.SKY_BOT, B.SKY_BOT);
+    this.bgGfx.fillRect(0, h * 0.55, w, h * 0.12);
+
+    // Sun
+    this.bgGfx.fillStyle(0xffeb3b, 0.15);
+    this.bgGfx.fillCircle(w * 0.85, 50, 55);
+    this.bgGfx.fillStyle(0xffeb3b, 0.25);
+    this.bgGfx.fillCircle(w * 0.85, 50, 40);
+    this.bgGfx.fillStyle(0xffeb3b);
+    this.bgGfx.fillCircle(w * 0.85, 50, 24);
+
+    // Clouds (parallax)
+    this.bgGfx.fillStyle(0xffffff, 0.6);
+    const cx = (this.distance * 0.1) % 700;
+    for (let i = 0; i < 3; i++) {
+      const bx = ((i * 300 - cx + 960) % 960) - 100;
+      const by = 60 + i * 30;
+      this.bgGfx.fillEllipse(bx, by, 110, 30);
+      this.bgGfx.fillEllipse(bx + 40, by - 8, 70, 25);
+      this.bgGfx.fillEllipse(bx + 80, by, 90, 28);
     }
 
-    // --- Tracks ---
+    // ── Colorful buildings ──
+    const buildingColors = B.BUILDING;
+    this.bgGfx.fillStyle(0x2ecc71);
+    this.bgGfx.fillRect(0, h * 0.26, w, h * 0.04); // grass strip
+
+    for (let i = 0; i < 14; i++) {
+      const bw = 35 + (i % 3) * 20;
+      const bh = 30 + ((i * 37 + 17) % 70);
+      const bx = ((i * 70 + this.distance * 0.04) % (w + bw * 2)) - bw;
+      const by = h * 0.27 - bh;
+
+      this.bgGfx.fillStyle(buildingColors[i % buildingColors.length]);
+      this.bgGfx.fillRect(bx, by, bw, bh);
+
+      // Windows
+      this.bgGfx.fillStyle(0xffffff, 0.4);
+      for (let wy = by + 6; wy < h * 0.26 - 8; wy += 12) {
+        for (let wx = bx + 5; wx < bx + bw - 5; wx += 10) {
+          if ((wx + wy) % 3 !== 0) {
+            this.bgGfx.fillStyle(0xffeb3b, 0.5);
+            this.bgGfx.fillRect(wx, wy, 5, 6);
+            this.bgGfx.fillStyle(0xffffff, 0.4);
+          }
+        }
+      }
+    }
+
+    // ── Ground / Grass ──
     this.trackGfx.clear();
+    this.trackGfx.fillStyle(B.GRASS);
+    this.trackGfx.fillRect(0, h * 0.30, w, h * 0.70);
+
+    // ── Track bed ──
     const center = w / 2;
-    const railTop = h * 0.28;
+    const railTop = h * 0.30;
     const railBottom = h * 0.96;
 
-    this.trackGfx.fillStyle(0x1a262b);
-    this.trackGfx.beginPath();
-    this.trackGfx.moveTo(center - w * 0.13, railTop);
-    this.trackGfx.lineTo(center + w * 0.13, railTop);
-    this.trackGfx.lineTo(w * 0.98, railBottom);
-    this.trackGfx.lineTo(w * 0.02, railBottom);
-    this.trackGfx.closePath();
-    this.trackGfx.fillPath();
+    // Track trapezoid
+    this.trackGfx.fillStyle(B.TRACK);
+    this.trackGfx.fillTriangle(
+      center - w * 0.12, railTop,
+      center + w * 0.12, railTop,
+      w * 0.82, railBottom
+    );
+    this.trackGfx.fillTriangle(
+      center - w * 0.12, railTop,
+      center + w * 0.12, railTop,
+      w * 0.18, railBottom
+    );
+
+    // Darker track center
+    this.trackGfx.fillStyle(B.TRACK_DARK);
+    this.trackGfx.fillTriangle(
+      center - w * 0.06, railTop,
+      center + w * 0.06, railTop,
+      w * 0.55, railBottom
+    );
+    this.trackGfx.fillTriangle(
+      center - w * 0.06, railTop,
+      center + w * 0.06, railTop,
+      w * 0.45, railBottom
+    );
 
     // Rails
     for (const lane of LANES) {
       const l = center + lane * w * 0.044;
-      this.trackGfx.lineStyle(3, 0xb8c1bb, 0.35);
+      // Left rail
+      this.trackGfx.lineStyle(4, B.RAIL, 0.6);
       this.trackGfx.beginPath();
       this.trackGfx.moveTo(l - w * 0.017, railTop);
-      this.trackGfx.lineTo(l - w * 0.056, railBottom);
+      this.trackGfx.lineTo(l - w * 0.050, railBottom);
       this.trackGfx.strokePath();
+      // Right rail
       this.trackGfx.beginPath();
       this.trackGfx.moveTo(l + w * 0.017, railTop);
-      this.trackGfx.lineTo(l + w * 0.056, railBottom);
+      this.trackGfx.lineTo(l + w * 0.050, railBottom);
       this.trackGfx.strokePath();
     }
 
-    // Cross ties
-    this.trackGfx.lineStyle(1.5, 0xffd34e, 0.15);
-    for (let i = 0; i < 16; i++) {
-      const t = ((this.distance / 230 + i) % 16) / 16;
-      const y = railTop + t * (railBottom - railTop);
-      const spread = w * (0.14 + t * 0.8);
+    // Sleepers (cross ties)
+    this.trackGfx.lineStyle(5, B.SLEEPER, 0.3);
+    for (let i = 0; i < 20; i++) {
+      const t = ((this.distance / 180 + i) % 20) / 20;
+      const yy = railTop + t * (railBottom - railTop);
+      const spread = w * (0.12 + t * 0.65);
       this.trackGfx.beginPath();
-      this.trackGfx.moveTo(center - spread / 2, y);
-      this.trackGfx.lineTo(center + spread / 2, y);
+      this.trackGfx.moveTo(center - spread / 2, yy);
+      this.trackGfx.lineTo(center + spread / 2, yy);
       this.trackGfx.strokePath();
     }
 

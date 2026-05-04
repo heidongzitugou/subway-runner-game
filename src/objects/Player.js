@@ -27,10 +27,10 @@ export class Player {
     this.mobileJump = false;
     this.mobileSlide = false;
 
-    // Sprite
+    // Sprite (bigger = visible)
     this.sprite = scene.add.image(this.x, this.y, 'player');
     this.sprite.setOrigin(0.5, 1);
-    this.sprite.setScale(0.18);
+    this.sprite.setScale(0.28);
 
     // Shield visual
     this.shieldViz = scene.add.ellipse(0, 0, 72, 92, 0x68a7ff, 0.12);
@@ -107,7 +107,7 @@ export class Player {
 
     // Sprite
     this.sprite.setPosition(this.x, this.y);
-    this.sprite.setScale(0.18);
+    this.sprite.setScale(0.28);
     this.sprite.setRotation((this.targetLane - this.lane) * 0.12);
     this.sprite.setFlipX(this.targetLane > this.lane);
 
