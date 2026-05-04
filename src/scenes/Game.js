@@ -24,6 +24,8 @@ export class GameScene extends Phaser.Scene {
     this.speedBurst = 0;
     this.missionComplete = false;
     this.paused = false;
+    this.lastSpeedMilestone = 1;
+    this.slowMo = 1;
 
     const saved = localStorage.getItem(BEST_KEY);
     this.best = (saved && Number.isFinite(Number(saved))) ? Number(saved) : 0;
@@ -170,19 +172,33 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    // Player
-    this.player.update(dt);
+    // Slow motion
+    if (this.slowMo < 1) {
+      this.slowMo = Math.min(1, this.slowMo + dt * 1.5);
+    }
+
+    // Slow motion affects everything
+    const sDt = dt * this.slowMo;
+    this.player.update(sDt);
 
     // Game state
     const missionBoost = this.missionComplete ? 1.12 : 1;
-    this.distance += dt * 540 * this.speed;
-    this.score += dt * 21 * this.speed * this.combo;
+    this.distance += sDt * 540 * this.speed;
+    this.score += sDt * 21 * this.speed * this.combo;
     this.speed = Math.min(SPEED.MAX, 1 + (this.distance / SPEED.RAMP_DISTANCE) * missionBoost);
-    this.comboTimer -= dt;
+    this.comboTimer -= sDt;
     if (this.comboTimer <= 0) this.combo = 1;
-    this.shake = Math.max(0, this.shake - dt * 16);
-    this.flash = Math.max(0, this.flash - dt * 3.6);
-    this.speedBurst = Math.max(0, this.speedBurst - dt * 2.8);
+    this.shake = Math.max(0, this.shake - sDt * 16);
+    this.flash = Math.max(0, this.flash - sDt * 3.6);
+    this.speedBurst = Math.max(0, this.speedBurst - sDt * 2.8);
+
+    // Speed milestone
+    const speedInt = Math.floor(this.speed);
+    if (speedInt > this.lastSpeedMilestone && speedInt >= 2) {
+      this.lastSpeedMilestone = speedInt;
+      this.addToast(`🚀 速度 ${speedInt}.0x！`);
+      this.flash = 1;
+    }
 
     // Mission
     if (!this.missionComplete && this.coins >= 20) {
@@ -255,28 +271,41 @@ export class GameScene extends Phaser.Scene {
       this.bgGfx.fillEllipse(bx + 80, by, 90, 28);
     }
 
-    // ── Colorful buildings ──
+    // ── Parallax buildings (2 layers) ──
     const buildingColors = B.BUILDING;
     this.bgGfx.fillStyle(0x2ecc71);
-    this.bgGfx.fillRect(0, h * 0.26, w, h * 0.04); // grass strip
+    this.bgGfx.fillRect(0, h * 0.26, w, h * 0.04);
 
-    for (let i = 0; i < 14; i++) {
-      const bw = 35 + (i % 3) * 20;
-      const bh = 30 + ((i * 37 + 17) % 70);
-      const bx = ((i * 70 + this.distance * 0.04) % (w + bw * 2)) - bw;
+    // Far layer (slow scroll)
+    for (let i = 0; i < 12; i++) {
+      const bw = 30 + (i % 3) * 14;
+      const bh = 25 + ((i * 31 + 7) % 55);
+      const bx = ((i * 85 + this.distance * 0.02) % (w + bw)) - bw;
       const by = h * 0.27 - bh;
+      this.bgGfx.fillStyle(buildingColors[(i + 2) % buildingColors.length]);
+      this.bgGfx.fillRect(bx, by, bw, bh);
+      this.bgGfx.fillStyle(0xffffff, 0.2);
+      for (let wy = by + 5; wy < h * 0.27 - 5; wy += 14) {
+        this.bgGfx.fillRect(bx + 6, wy, 4, 6);
+      }
+    }
 
+    // Near layer (fast scroll - more detail)
+    for (let i = 0; i < 10; i++) {
+      const bw = 40 + (i % 3) * 22;
+      const bh = 35 + ((i * 43 + 13) % 72);
+      const bx = ((i * 100 + this.distance * 0.08) % (w + bw)) - bw;
+      const by = h * 0.27 - bh;
       this.bgGfx.fillStyle(buildingColors[i % buildingColors.length]);
       this.bgGfx.fillRect(bx, by, bw, bh);
-
       // Windows
-      this.bgGfx.fillStyle(0xffffff, 0.4);
-      for (let wy = by + 6; wy < h * 0.26 - 8; wy += 12) {
-        for (let wx = bx + 5; wx < bx + bw - 5; wx += 10) {
-          if ((wx + wy) % 3 !== 0) {
-            this.bgGfx.fillStyle(0xffeb3b, 0.5);
+      this.bgGfx.fillStyle(0xffffff, 0.35);
+      for (let wy = by + 7; wy < h * 0.27 - 8; wy += 14) {
+        for (let wx = bx + 7; wx < bx + bw - 7; wx += 12) {
+          if ((wx + wy) % 4 !== 0) {
+            this.bgGfx.fillStyle(0xffeb3b, 0.45);
             this.bgGfx.fillRect(wx, wy, 5, 6);
-            this.bgGfx.fillStyle(0xffffff, 0.4);
+            this.bgGfx.fillStyle(0xffffff, 0.35);
           }
         }
       }
@@ -453,6 +482,20 @@ export class GameScene extends Phaser.Scene {
       this.effectGfx.fillRect(0, 0, w, h);
     }
 
+    // Combo screen glow
+    if (this.combo > 1) {
+      const ci = (this.combo - 1) / 7;
+      const cg = this.effectGfx;
+      // Top & bottom hot edge
+      cg.fillStyle(0xffd34e, ci * 0.08);
+      cg.fillRect(0, 0, w, 10 + ci * 8);
+      cg.fillRect(0, h - 10 - ci * 8, w, 10 + ci * 8);
+      // Side cool edge
+      cg.fillStyle(0x45b7d1, ci * 0.05);
+      cg.fillRect(0, 0, 8 + ci * 4, h);
+      cg.fillRect(w - 8 - ci * 4, 0, 8 + ci * 4, h);
+    }
+
     // Shake
     if (this.shake > 0) {
       this.cameras.main.setScroll(
@@ -495,6 +538,8 @@ export class GameScene extends Phaser.Scene {
       this.score += 25 * this.combo;
       this.speedBurst = Math.max(this.speedBurst, 0.22);
       this.burstEffect(obj);
+      const pos = this.objectScreen(obj);
+      this.addFloatingScore(pos.x, pos.y - pos.h, 25 * this.combo);
       return;
     }
     if (obj.kind === 'shield') {
@@ -577,6 +622,25 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  addFloatingScore(x, y, amount) {
+    const txt = this.add.text(x, y, `+${amount}`, {
+      fontSize: '26px', fontFamily: 'Arial, sans-serif',
+      fontStyle: '900', color: '#ffd34e',
+      stroke: '#000', strokeThickness: 5,
+      shadow: { offsetX: 1, offsetY: 2, color: '#000', blur: 4, fill: true },
+    }).setOrigin(0.5).setDepth(60);
+
+    this.tweens.add({
+      targets: txt,
+      y: y - 70,
+      alpha: 0,
+      scale: 1.4,
+      duration: 700,
+      ease: 'Power2',
+      onComplete: () => txt.destroy(),
+    });
+  }
+
   addToast(text) {
     this.particles.push({
       toastText: text,
@@ -596,8 +660,10 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.cameras.main.shake(200, 0.012);
+    this.slowMo = 0.2;
 
     this.time.delayedCall(700, () => {
+      this.slowMo = 1;
       this.cameras.main.fadeOut(300, 7, 16, 20);
       this.cameras.main.once('camerafadeoutcomplete', () => {
         this.scene.start('GameOver', { score, coins: this.coins, best: this.best });

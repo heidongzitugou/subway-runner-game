@@ -81,16 +81,24 @@ export class Spawner {
 
   spawnCoinLine(objects) {
     const lane = LANES[Math.floor(Math.random() * LANES.length)];
-    const arc = Math.random() > 0.58;
-    for (let i = 0; i < 7; i += 1) {
+    const arc = Math.random() > 0.45; // more arcs
+    const count = arc ? 9 : 6;
+    for (let i = 0; i < count; i += 1) {
+      let l = lane;
+      if (arc) {
+        // Arc: start on lane, curve to adjacent lane
+        const progress = i / (count - 1);
+        const offset = Math.sin(progress * Math.PI) * 1.5;
+        l = this.clampLane(lane + (Math.random() > 0.5 ? offset : -offset));
+      }
       objects.push({
         kind: 'coin',
-        lane: arc && i > 3 ? this.clampLane(lane + (Math.random() > 0.5 ? 1 : -1)) : lane,
-        z: 1.15 + i * 0.075,
+        lane: Math.round(l * 10) / 10,
+        z: 1.15 + i * 0.065,
         width: 30,
         height: 30,
         hit: false,
-        spin: Math.random() * Math.PI,
+        spin: Math.random() * Math.PI * 2,
         pull: 0,
       });
     }

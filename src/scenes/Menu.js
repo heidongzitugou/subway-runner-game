@@ -13,11 +13,24 @@ export class MenuScene extends Phaser.Scene {
     this.add.rectangle(w / 2, h / 2, w, h, 0x4ecdc4);
     this.add.rectangle(w / 2, h * 0.65, w, h * 0.7, 0x87ceeb);
 
-    // Clouds
-    this.add.ellipse(180, 80, 160, 50, 0xffffff, 0.5);
-    this.add.ellipse(250, 70, 100, 40, 0xffffff, 0.5);
-    this.add.ellipse(600, 110, 140, 45, 0xffffff, 0.5);
-    this.add.ellipse(680, 100, 90, 35, 0xffffff, 0.5);
+    // Clouds (with floating animation)
+    const cloudData = [
+      { x: 180, y: 80, w: 160, h: 50, d: 2000 },
+      { x: 250, y: 70, w: 100, h: 40, d: 2500 },
+      { x: 600, y: 110, w: 140, h: 45, d: 1800 },
+      { x: 680, y: 100, w: 90, h: 35, d: 2200 },
+    ];
+    cloudData.forEach((c) => {
+      const cloud = this.add.ellipse(c.x, c.y, c.w, c.h, 0xffffff, 0.5);
+      this.tweens.add({
+        targets: cloud,
+        y: c.y - 8,
+        duration: c.d,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+    });
 
     // Sun
     this.add.circle(w - 120, 70, 50, 0xffeb3b, 0.2);

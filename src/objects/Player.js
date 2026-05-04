@@ -89,6 +89,18 @@ export class Player {
     this.jumpVelocity -= 2380 * dt;
     if (this.jump <= 0) {
       if (this.wasJumping && this.onLand) this.onLand();
+      // Landing squash
+      if (this.wasJumping && !this._squashing) {
+        this._squashing = true;
+        this.scene.tweens.add({
+          targets: this.sprite,
+          scaleX: 0.32, scaleY: 0.22,
+          duration: 60,
+          yoyo: true,
+          ease: 'Bounce.easeOut',
+          onComplete: () => { this._squashing = false; },
+        });
+      }
       this.jump = 0;
       this.jumpVelocity = 0;
       this.wasJumping = false;
