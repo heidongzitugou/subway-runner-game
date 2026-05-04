@@ -214,7 +214,7 @@ export class GameScene extends Phaser.Scene {
 
     // Update objects
     for (const obj of this.objects) {
-      obj.z -= dt * (0.54 + this.speed * 0.3);
+      obj.z -= dt * (0.35 + this.speed * 0.18);
       if (obj.kind === 'coin' || obj.kind === 'shield' || obj.kind === 'magnet') obj.spin += dt * 10;
       if (obj.kind === 'coin' && this.player.magnet > 0) this.applyMagnet(obj, dt);
       if (!obj.hit && this.checkCollision(obj)) this.handleCollision(obj);
@@ -383,39 +383,75 @@ export class GameScene extends Phaser.Scene {
       if (pos.scale <= 0.16 || obj.hit) continue;
 
       const g = this.objGfx;
+      const border = Math.max(2, pos.scale * 2);
+
+      // Shadow underneath obstacles for depth
+      if (obj.kind === 'obstacle') {
+        g.fillStyle(0x000000, 0.25);
+        g.fillEllipse(pos.x, pos.y + 2, pos.w * 0.8, pos.h * 0.08);
+      }
+
       if (obj.kind === 'coin') {
-        const size = Math.max(4, pos.w / 2);
+        const size = Math.max(5, pos.w / 2);
         g.fillStyle(0xffd34e);
         g.fillCircle(pos.x, pos.y - pos.h / 2, size);
-        g.lineStyle(2, 0xfff5b9);
+        g.lineStyle(border, 0xffffff, 0.7);
         g.strokeCircle(pos.x, pos.y - pos.h / 2, size);
       } else if (obj.kind === 'shield') {
-        g.fillStyle(0x68a7ff, 0.6);
+        g.fillStyle(0x45b7d1);
         g.fillCircle(pos.x, pos.y - pos.h / 2, pos.w / 2);
+        g.lineStyle(border, 0xffffff, 0.5);
+        g.strokeCircle(pos.x, pos.y - pos.h / 2, pos.w / 2);
       } else if (obj.kind === 'magnet') {
-        g.fillStyle(0x5be6b7, 0.6);
+        g.fillStyle(0xff6b6b);
         g.fillCircle(pos.x, pos.y - pos.h / 2, pos.w / 2);
+        g.lineStyle(border, 0xffffff, 0.5);
+        g.strokeCircle(pos.x, pos.y - pos.h / 2, pos.w / 2);
       } else if (obj.type === 'gate') {
         g.fillStyle(0xef4c4f);
         g.fillRect(pos.x - pos.w / 2, pos.y - pos.h, pos.w, pos.h);
+        g.lineStyle(border, 0xffffff, 0.6);
+        g.strokeRect(pos.x - pos.w / 2, pos.y - pos.h, pos.w, pos.h);
+        // Warning stripes
+        g.fillStyle(0xfeca57);
+        g.fillRect(pos.x - pos.w * 0.3, pos.y - pos.h * 0.15, pos.w * 0.6, pos.h * 0.08);
       } else if (obj.type === 'barrier') {
         g.fillStyle(0xf7833d);
         g.fillRect(pos.x - pos.w / 2, pos.y - pos.h, pos.w, pos.h);
+        g.lineStyle(border, 0xffffff, 0.6);
+        g.strokeRect(pos.x - pos.w / 2, pos.y - pos.h, pos.w, pos.h);
+        // X mark
+        g.lineStyle(border, 0xffffff, 0.3);
+        g.beginPath(); g.moveTo(pos.x - pos.w * 0.3, pos.y - pos.h * 0.75);
+        g.lineTo(pos.x + pos.w * 0.3, pos.y - pos.h * 0.25); g.strokePath();
+        g.beginPath(); g.moveTo(pos.x + pos.w * 0.3, pos.y - pos.h * 0.75);
+        g.lineTo(pos.x - pos.w * 0.3, pos.y - pos.h * 0.25); g.strokePath();
       } else if (obj.type === 'cone') {
         g.fillStyle(0xff8b2e);
         g.beginPath();
         g.moveTo(pos.x, pos.y - pos.h);
         g.lineTo(pos.x + pos.w / 2, pos.y);
         g.lineTo(pos.x - pos.w / 2, pos.y);
-        g.closePath();
-        g.fillPath();
+        g.closePath(); g.fillPath();
+        g.lineStyle(border, 0xffffff, 0.6);
+        g.beginPath();
+        g.moveTo(pos.x, pos.y - pos.h);
+        g.lineTo(pos.x + pos.w / 2, pos.y);
+        g.lineTo(pos.x - pos.w / 2, pos.y);
+        g.closePath(); g.strokePath();
+        // Stripe
+        g.fillStyle(0xffffff, 0.5);
+        g.fillRect(pos.x - pos.w * 0.2, pos.y - pos.h * 0.55, pos.w * 0.4, pos.h * 0.07);
       } else if (obj.type === 'train') {
-        g.fillStyle(0x8eb0a6);
+        g.fillStyle(0x4ecdc4);
         g.fillRect(pos.x - pos.w / 2, pos.y - pos.h, pos.w, pos.h);
+        g.lineStyle(border, 0xffffff, 0.5);
+        g.strokeRect(pos.x - pos.w / 2, pos.y - pos.h, pos.w, pos.h);
         g.fillStyle(0x162027);
-        g.fillRect(pos.x - pos.w * 0.28, pos.y - pos.h * 0.72, pos.w * 0.56, pos.h * 0.28);
-        g.fillStyle(0xef4c4f);
-        g.fillRect(pos.x - pos.w / 2, pos.y - pos.h * 0.38, pos.w, 5);
+        g.fillRect(pos.x - pos.w * 0.32, pos.y - pos.h * 0.70, pos.w * 0.64, pos.h * 0.22);
+        g.fillStyle(0xffeb3b, 0.6);
+        g.fillCircle(pos.x - pos.w * 0.22, pos.y - pos.h * 0.58, pos.w * 0.08);
+        g.fillCircle(pos.x + pos.w * 0.22, pos.y - pos.h * 0.58, pos.w * 0.08);
       }
     }
 

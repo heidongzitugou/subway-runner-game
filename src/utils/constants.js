@@ -39,7 +39,7 @@ export const GROUND_Y = CONFIG.HEIGHT * 0.82;
 export const SPEED = {
   MIN: 1,
   MAX: 3.25,
-  RAMP_DISTANCE: 10500, // distance to reach max speed
+  RAMP_DISTANCE: 18000, // distance to reach max speed (slower ramp)
 };
 
 export const SPAWN = {

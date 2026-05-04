@@ -20,14 +20,14 @@ export class BootScene extends Phaser.Scene {
 
     const tasks = [
       () => this.gen('background', 960, 640, this.drawBg),
-      () => this.gen('player', 80, 120, this.drawPlayer),
-      () => this.gen('coin', 40, 40, this.drawCoin),
-      () => this.gen('shield', 48, 48, this.drawShield),
-      () => this.gen('magnet', 52, 52, this.drawMagnet),
-      () => this.gen('barrier', 60, 80, this.drawBarrier),
-      () => this.gen('gate', 70, 55, this.drawGate),
-      () => this.gen('cone', 44, 60, this.drawCone),
-      () => this.gen('train', 120, 140, this.drawTrain),
+      () => this.gen('player', 120, 180, this.drawPlayer),
+      () => this.gen('coin', 60, 60, this.drawCoin),
+      () => this.gen('shield', 64, 64, this.drawShield),
+      () => this.gen('magnet', 64, 64, this.drawMagnet),
+      () => this.gen('barrier', 80, 100, this.drawBarrier),
+      () => this.gen('gate', 80, 66, this.drawGate),
+      () => this.gen('cone', 60, 72, this.drawCone),
+      () => this.gen('train', 160, 200, this.drawTrain),
     ];
 
     let i = 0;

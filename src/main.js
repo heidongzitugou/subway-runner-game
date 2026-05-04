@@ -9,7 +9,9 @@ const config = {
   width: 960,
   height: 640,
   parent: 'game-container',
-  backgroundColor: '#071014',
+  backgroundColor: '#4ecdc4',
+  antialias: true,
+  roundPixels: false,
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,

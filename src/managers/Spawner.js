@@ -72,7 +72,7 @@ export class Spawner {
       kind: 'obstacle',
       type,
       lane,
-      z: 1.15,
+      z: 1.5,
       width: s.w,
       height: s.h,
       hit: false,
@@ -94,7 +94,7 @@ export class Spawner {
       objects.push({
         kind: 'coin',
         lane: Math.round(l * 10) / 10,
-        z: 1.15 + i * 0.065,
+        z: 1.5 + i * 0.055,
         width: 30,
         height: 30,
         hit: false,
@@ -108,7 +108,7 @@ export class Spawner {
     objects.push({
       kind: Math.random() > 0.5 ? 'shield' : 'magnet',
       lane: LANES[Math.floor(Math.random() * LANES.length)],
-      z: 1.15,
+      z: 1.5,
       width: 38,
       height: 38,
       hit: false,
