@@ -1,0 +1,14 @@
+{
+  "name": "subway-runner-game",
+  "version": "2.0.0",
+  "description": "地铁疾跑 - 无限跑酷网页游戏",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve ."
+  },
+  "dependencies": {
+    "phaser": "^3.88.0"
+  }
+}

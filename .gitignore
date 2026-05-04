@@ -1,9 +1,22 @@
+# Dependencies
+node_modules/
+
 # Edge debug profiles
 .edge-profile*/
+
 # Temp files
 tmp/
+
 # VS Code workspace
 *.code-workspace
+
+# Old screenshots
+desktop-ui.png
+mobile-ui.png
+
+# Old single-file version
+game.js
+
 # System files
 Thumbs.db
 .DS_Store
