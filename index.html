@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>地铁疾跑</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="game-wrap" aria-label="地铁疾跑游戏">
+        <canvas id="game" width="960" height="640"></canvas>
+
+        <div class="hud" aria-live="polite">
+          <div>
+            <span class="label">分数</span>
+            <strong id="score">0</strong>
+          </div>
+          <div>
+            <span class="label">金币</span>
+            <strong id="coins">0</strong>
+          </div>
+          <div>
+            <span class="label">倍率</span>
+            <strong id="speed">1.0x</strong>
+          </div>
+          <div>
+            <span class="label">最佳</span>
+            <strong id="best">0</strong>
+          </div>
+        </div>
+
+        <div class="power-strip" aria-hidden="true">
+          <span id="shieldPill" class="pill">护盾</span>
+          <span id="magnetPill" class="pill">磁铁</span>
+          <span id="comboPill" class="pill">连击 x1</span>
+        </div>
+
+        <div class="mission" id="mission">收集 20 枚金币，解锁速度奖励</div>
+
+        <div class="mobile-controls" aria-label="触屏控制">
+          <button class="control" id="leftBtn" type="button" aria-label="向左换道">‹</button>
+          <button class="control" id="jumpBtn" type="button" aria-label="跳跃">跳</button>
+          <button class="control" id="slideBtn" type="button" aria-label="滑铲">滑</button>
+          <button class="control" id="rightBtn" type="button" aria-label="向右换道">›</button>
+        </div>
+
+        <div class="overlay" id="overlay">
+          <div class="panel">
+            <p class="kicker" id="kicker">Endless Runner</p>
+            <p class="art-note">AI Art Ready: 可直接接入生图素材包</p>
+            <h1 id="overlayTitle">地铁疾跑</h1>
+            <p class="copy" id="overlayCopy">三条轨道高速穿梭，躲开列车、路障和低空横杆，收集金币与道具，把速度推到极限。</p>
+            <button id="startBtn" type="button">开始奔跑</button>
+            <div class="keys">
+              <span>A / ← 换到左侧轨道</span>
+              <span>D / → 换到右侧轨道</span>
+              <span>W / ↑ / 空格 跳跃</span>
+              <span>S / ↓ 滑铲，P 暂停</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="game.js"></script>
+  </body>
+</html>

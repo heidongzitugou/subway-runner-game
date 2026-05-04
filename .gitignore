@@ -1,0 +1,9 @@
+# Edge debug profiles
+.edge-profile*/
+# Temp files
+tmp/
+# VS Code workspace
+*.code-workspace
+# System files
+Thumbs.db
+.DS_Store
