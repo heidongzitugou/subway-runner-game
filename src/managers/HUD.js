@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { CONFIG, COLORS, MISSION_COIN_TARGET } from '../utils/constants.js';
 
 export class HUD {

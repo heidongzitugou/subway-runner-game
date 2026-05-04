@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { CONFIG } from '../utils/constants.js';
 
 export class GameOverScene extends Phaser.Scene {
@@ -70,7 +70,6 @@ export class GameOverScene extends Phaser.Scene {
     const btnBg = this.add.rectangle(w / 2, h * 0.64, 200, 50, 0xffd34e, 0.9)
       .setInteractive({ useHandCursor: true });
     btnBg.setStrokeStyle(0, 0xfff5b9, 1);
-    btnBg.setShadow(0, 6, '#ffd34e', 20, true, true);
     btnBg.setAlpha(0);
 
     this.add.text(w / 2, h * 0.64, '再跑一局', {

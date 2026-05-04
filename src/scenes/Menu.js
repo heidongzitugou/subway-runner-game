@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { CONFIG, BEST_KEY, COLORS } from '../utils/constants.js';
 
 export class MenuScene extends Phaser.Scene {
@@ -72,7 +72,8 @@ export class MenuScene extends Phaser.Scene {
     // Start button
     const btnBg = this.add.rectangle(w / 2, h * 0.55, 200, 54, 0xffd34e, 0.9).setInteractive({ useHandCursor: true });
     btnBg.setStrokeStyle(0, 0xfff5b9, 1);
-    btnBg.setShadow(0, 6, '#ffd34e', 20, true, true);
+    // Shadow
+    this.add.rectangle(w / 2 + 3, h * 0.55 + 4, 200, 54, 0x000000, 0.25);
 
     const btnText = this.add.text(w / 2, h * 0.55, '开始奔跑', {
       fontSize: '22px',

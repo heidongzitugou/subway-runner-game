@@ -1,11 +1,11 @@
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { GROUND_Y } from '../utils/constants.js';
 
 export class Player {
   constructor(scene) {
     this.scene = scene;
-    this.lane = 0;
-    this.targetLane = 0;
+    this.lane = 0;       // current lane (-1, 0, 1)
+    this.targetLane = 0; // moving toward this lane
     this.jump = 0;
     this.jumpVelocity = 0;
     this.sliding = 0;
@@ -13,8 +13,8 @@ export class Player {
     this.magnet = 0;
     this.stride = 0;
     this.alive = true;
-    this.wasJumping = false; // for landing detection
-    this.onLand = null; // callback set by scene
+    this.wasJumping = false;
+    this.onLand = null;
 
     this.width = 42;
     this.height = 80;
@@ -22,9 +22,8 @@ export class Player {
     this.x = scene.scale.width / 2;
     this.y = GROUND_Y;
 
-    // Mobile input flags (set by touch controls)
-    this.mobileLeft = false;
-    this.mobileRight = false;
+    // Mobile input flags (one-shot, consumed each frame)
+    this.mobileDir = 0; // -1 left, 1 right, 0 none
     this.mobileJump = false;
     this.mobileSlide = false;
 
@@ -38,15 +37,37 @@ export class Player {
     this.shieldViz.setStrokeStyle(2, 0x68a7ff, 0.4);
     this.shieldViz.setVisible(false);
 
-    // Keyboard
-    this.cursors = scene.input.keyboard.createCursorKeys();
-    this.keys = {
-      w: scene.input.keyboard.addKey('W'),
-      a: scene.input.keyboard.addKey('A'),
-      s: scene.input.keyboard.addKey('S'),
-      d: scene.input.keyboard.addKey('D'),
-      space: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
-    };
+    // ── Keyboard events (one press = one lane switch) ──
+    const kb = scene.input.keyboard;
+    kb.on('keydown-A', () => this.moveLeft());
+    kb.on('keydown-LEFT', () => this.moveLeft());
+    kb.on('keydown-D', () => this.moveRight());
+    kb.on('keydown-RIGHT', () => this.moveRight());
+    kb.on('keydown-W', () => this.doJump());
+    kb.on('keydown-UP', () => this.doJump());
+    kb.on('keydown-SPACE', () => this.doJump());
+    kb.on('keydown-S', () => this.doSlide());
+    kb.on('keydown-DOWN', () => this.doSlide());
+  }
+
+  moveLeft() {
+    if (this.alive) this.targetLane = Math.max(-1, this.targetLane - 1);
+  }
+
+  moveRight() {
+    if (this.alive) this.targetLane = Math.min(1, this.targetLane + 1);
+  }
+
+  doJump() {
+    if (this.alive && this.jump <= 1 && this.sliding <= 0) {
+      this.jumpVelocity = 820;
+    }
+  }
+
+  doSlide() {
+    if (this.alive && this.jump <= 4) {
+      this.sliding = 0.68;
+    }
   }
 
   update(dt) {
@@ -55,11 +76,18 @@ export class Player {
     // Smooth lane movement
     this.lane += (this.targetLane - this.lane) * Math.min(1, dt * 14);
 
+    // Mobile direction (one-shot per frame)
+    if (this.mobileDir !== 0) {
+      this.targetLane = Math.max(-1, Math.min(1, this.targetLane + this.mobileDir));
+      this.mobileDir = 0;
+    }
+    if (this.mobileJump) { this.doJump(); this.mobileJump = false; }
+    if (this.mobileSlide) { this.doSlide(); this.mobileSlide = false; }
+
     // Jump physics
     this.jump += this.jumpVelocity * dt;
     this.jumpVelocity -= 2380 * dt;
     if (this.jump <= 0) {
-      // Landing detection
       if (this.wasJumping && this.onLand) this.onLand();
       this.jump = 0;
       this.jumpVelocity = 0;
@@ -77,7 +105,7 @@ export class Player {
     this.x = this.scene.scale.width / 2 + this.lane * 220;
     this.y = GROUND_Y - this.jump;
 
-    // Update sprite
+    // Sprite
     this.sprite.setPosition(this.x, this.y);
     this.sprite.setScale(0.18);
     this.sprite.setRotation((this.targetLane - this.lane) * 0.12);
@@ -90,45 +118,6 @@ export class Player {
     if (this.shield > 0) {
       this.shieldViz.setAlpha(0.2 + Math.sin(this.scene.time.now * 0.008) * 0.15);
     }
-  }
-
-  handleInput() {
-    if (!this.alive) return;
-
-    // ── Lane movement ──
-    const keyLeft = this.cursors.left.isDown || this.keys.a.isDown;
-    const keyRight = this.cursors.right.isDown || this.keys.d.isDown;
-
-    if (keyLeft) {
-      this.targetLane = -1;
-    } else if (keyRight) {
-      this.targetLane = 1;
-    } else if (this.mobileLeft) {
-      this.targetLane = -1;
-    } else if (this.mobileRight) {
-      this.targetLane = 1;
-    } else {
-      this.targetLane = 0;
-    }
-
-    // ── Jump ──
-    const jumpPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
-      Phaser.Input.Keyboard.JustDown(this.keys.w) ||
-      Phaser.Input.Keyboard.JustDown(this.keys.space);
-
-    if ((jumpPressed || this.mobileJump) && this.jump <= 1 && this.sliding <= 0) {
-      this.jumpVelocity = 820;
-    }
-    this.mobileJump = false; // one-shot
-
-    // ── Slide ──
-    const slidePressed = Phaser.Input.Keyboard.JustDown(this.cursors.down) ||
-      Phaser.Input.Keyboard.JustDown(this.keys.s);
-
-    if ((slidePressed || this.mobileSlide) && this.jump <= 4) {
-      this.sliding = 0.68;
-    }
-    this.mobileSlide = false; // one-shot
   }
 
   getVisualHeight() {

@@ -14,8 +14,8 @@ tmp/
 desktop-ui.png
 mobile-ui.png
 
-# Old single-file version
-game.js
+# Old single-file version (root only)
+/game.js
 
 # System files
 Thumbs.db

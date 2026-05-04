@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { CONFIG, LANES, COLORS, SPEED, GROUND_Y, BEST_KEY } from '../utils/constants.js';
 import { Player } from '../objects/Player.js';
 import { Spawner } from '../managers/Spawner.js';
@@ -41,6 +41,9 @@ export class GameScene extends Phaser.Scene {
     // ── Effects layer (above player) ──
     this.effectGfx = this.add.graphics();
 
+    // ── Particle text layer ──
+    this.particleGfx = this.add.graphics();
+
     // ── Spawner ──
     this.spawner = new Spawner(this);
 
@@ -59,8 +62,7 @@ export class GameScene extends Phaser.Scene {
       const dx = p.x - this.touchStartX;
       const dy = p.y - this.touchStartY;
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 28) {
-        if (dx > 0) this.player.mobileRight = true;
-        else this.player.mobileLeft = true;
+        this.player.mobileDir = dx > 0 ? 1 : -1;
       }
       if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 28) {
         if (dy < 0) this.player.mobileJump = true;
@@ -87,10 +89,10 @@ export class GameScene extends Phaser.Scene {
     const zoneH = 72;
     const zoneY = CONFIG.HEIGHT - zoneH / 2 - 10;
     const items = [
-      { x: CONFIG.WIDTH * 0.12, label: '‹', cb: () => { if (!this.paused) this.player.mobileLeft = true; } },
+      { x: CONFIG.WIDTH * 0.12, label: '‹', cb: () => { if (!this.paused) this.player.mobileDir = -1; } },
       { x: CONFIG.WIDTH * 0.35, label: '跳', cb: () => { if (!this.paused) this.player.mobileJump = true; } },
       { x: CONFIG.WIDTH * 0.65, label: '滑', cb: () => { if (!this.paused) this.player.mobileSlide = true; } },
-      { x: CONFIG.WIDTH * 0.88, label: '›', cb: () => { if (!this.paused) this.player.mobileRight = true; } },
+      { x: CONFIG.WIDTH * 0.88, label: '›', cb: () => { if (!this.paused) this.player.mobileDir = 1; } },
     ];
 
     for (const item of items) {
@@ -167,7 +169,6 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Player
-    this.player.handleInput();
     this.player.update(dt);
 
     // Game state
@@ -328,7 +329,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     // --- Particles & Toasts ---
-    const ef = this.effectGfx;
+    this.particleGfx.clear();
+    const ef = this.particleGfx;
     for (const p of this.particles) {
       // Toast messages
       if (p.toastText) {
