@@ -16,7 +16,7 @@ export class Spawner {
     if (this.obstacleTimer <= 0) {
       this.spawnObstacleGroup(objects);
       this.obstacleTimer = Math.max(SPAWN.OBSTACLE_INTERVAL_MIN,
-        SPAWN.OBSTACLE_INTERVAL_MAX - speed * 0.13 - Math.random() * 0.18);
+        SPAWN.OBSTACLE_INTERVAL_MAX - speed * 0.06 - Math.random() * 0.15);
     }
 
     if (this.coinTimer <= 0) {

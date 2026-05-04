@@ -12,9 +12,17 @@ const config = {
   backgroundColor: '#4ecdc4',
   antialias: true,
   roundPixels: false,
+  pixelArt: false,
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+    autoRound: true,
+  },
+  render: {
+    antialias: true,
+    pixelArt: false,
+    roundPixels: false,
+    transparent: false,
   },
   physics: {
     default: 'arcade',

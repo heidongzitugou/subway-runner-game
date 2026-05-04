@@ -30,7 +30,7 @@ export class Player {
     // Sprite
     this.sprite = scene.add.image(this.x, this.y, 'player');
     this.sprite.setOrigin(0.5, 1);
-    this.sprite.setScale(0.22);
+    this.sprite.setScale(0.38);
 
     // Shield visual
     this.shieldViz = scene.add.ellipse(0, 0, 72, 92, 0x68a7ff, 0.12);
@@ -94,7 +94,7 @@ export class Player {
         this._squashing = true;
         this.scene.tweens.add({
           targets: this.sprite,
-          scaleX: 0.25, scaleY: 0.17,
+          scaleX: 0.42, scaleY: 0.32,
           duration: 60,
           yoyo: true,
           ease: 'Bounce.easeOut',
@@ -119,7 +119,7 @@ export class Player {
 
     // Sprite
     this.sprite.setPosition(this.x, this.y);
-    this.sprite.setScale(0.22);
+    this.sprite.setScale(0.38);
     this.sprite.setRotation((this.targetLane - this.lane) * 0.12);
     this.sprite.setFlipX(this.targetLane > this.lane);
 
